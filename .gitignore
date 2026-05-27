@@ -1,0 +1,18 @@
+# python env dirs
+__pycache__/
+*.pyc
+*.npy
+*.npz
+venv/
+venvs/
+env/
+ENV/
+conda/
+
+PetImages/
+dataset/
+datasets/
+
+# OS-specific
+.DS_Store
+Thumbs.db

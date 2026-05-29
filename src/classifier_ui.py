@@ -1,15 +1,17 @@
-import tkinter as tk
-from tkinter import ttk, filedialog, scrolledtext
-from PIL import Image, ImageTk
-import queue
-import threading
-import sys
 import os
-import subprocess
+import queue
 import random
-import torch
-import cv2
+import subprocess
+import sys
+import threading
+import tkinter as tk
 from pathlib import Path
+from tkinter import filedialog, scrolledtext, ttk
+
+import cv2
+import torch
+from PIL import Image, ImageTk
+
 from label import img_squash, label_dataset
 from model import model_construction
 
@@ -242,7 +244,7 @@ class PredictTab(ttk.Frame):
     def _on_load(self):
         path = Path(self.model_var.get().strip()) 
         self.model_name = path.stem
-        self.root.current_model = torch.jit.load(path).to(device)
+        self.root.current_model = torch.jit.load(path,map_location=device).to(device)
         self.model_status.configure(text=f"{self.model_name} model active")
 
     def _on_predict(self):

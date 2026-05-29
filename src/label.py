@@ -1,32 +1,38 @@
-import time
 import random
-
-import numpy as np
-import cv2
+import time
 from pathlib import Path
+
+import cv2
+import numpy as np
 from sklearn.model_selection import train_test_split
 
-BASE_DIR = Path(__file__).resolve().parent.parent / "data" 
+BASE_DIR = Path(__file__).resolve().parent.parent / "data"
 WRITE_DIR = BASE_DIR / "processed"
-IMAGE_DIM = (224,224)
+IMAGE_DIM = (224, 224)
 
-def img_squash(img):    #mutate img into a tensor form understood by the network
+
+def img_squash(img):  # mutate img into a tensor form understood by the network
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img_resized = cv2.resize(img,IMAGE_DIM)
-    norm_img =  img_resized.astype("float32") / 255.0
-    return np.transpose(norm_img,(2,0,1))
+    img_resized = cv2.resize(img, IMAGE_DIM)
+    norm_img = img_resized.astype("float32") / 255.0
+    return np.transpose(norm_img, (2, 0, 1))
 
-def label_dataset(path,rand_n=42,log_callback=print): #use magic number for random state when testing for replicatable behaviour
-    dataset_name = path.name  
+
+def label_dataset(
+    path, rand_n=42, log_callback=print
+):  # use magic number for random state when testing for replicatable behaviour
+    dataset_name = path.name
     classes = [f.name for f in sorted(path.iterdir()) if f.is_dir()]
-    class_to_label = {label : i for i, label in enumerate(classes)}
-    labels = [] # softmax indeces
+    class_to_label = {label: i for i, label in enumerate(classes)}
+    labels = []  # softmax indeces
 
     random.seed(rand_n)
-    all_of_the_files = list(path.rglob("*")) 
+    all_of_the_files = list(path.rglob("*"))
     random.shuffle(all_of_the_files)
 
-    dat_path = WRITE_DIR / f"{dataset_name}.raw" #processed tensors will be to big for memeory, write raw bytes to disk
+    dat_path = (
+        WRITE_DIR / f"{dataset_name}.raw"
+    )  # processed tensors will be to big for memeory, write raw bytes to disk
     real_count = 0
 
     log_callback("Processing raw image data")
@@ -49,22 +55,25 @@ def label_dataset(path,rand_n=42,log_callback=print): #use magic number for rand
 
     log_callback(f"Processed {real_count} images")
 
-    data_shape = (real_count,3,*IMAGE_DIM) 
-    data = np.memmap(dat_path, dtype="float32", mode="r",shape=data_shape)  #construct refference to memmap
-    labels = np.array(labels,dtype=np.int32) 
+    data_shape = (real_count, 3, *IMAGE_DIM)
+    data = np.memmap(
+        dat_path, dtype="float32", mode="r", shape=data_shape
+    )  # construct refference to memmap
+    labels = np.array(labels, dtype=np.int32)
 
     indices = np.arange(len(labels))
-    train_idx, test_idx = train_test_split(indices,test_size=0.2, random_state=rand_n, stratify=labels)  
-
+    train_idx, test_idx = train_test_split(
+        indices, test_size=0.2, random_state=rand_n, stratify=labels
+    )
 
     log_callback("Writing tensor dataset to file")
-    np.save(WRITE_DIR / f"{dataset_name}_images.npy",data)
+    np.save(WRITE_DIR / f"{dataset_name}_images.npy", data)
     np.savez(
         WRITE_DIR / f"{dataset_name}_metadata.npz",
         labels=labels,
         train_idx=train_idx,
         test_idx=test_idx,
-        classes=classes
+        classes=classes,
     )
 
     log_callback(f"time taken: ~{int(time.time() - start)}s")
@@ -72,7 +81,8 @@ def label_dataset(path,rand_n=42,log_callback=print): #use magic number for rand
     del data
     if dat_path.exists():
         dat_path.unlink()
-    
+
 
 if __name__ == "__main__":
     label_dataset()
+

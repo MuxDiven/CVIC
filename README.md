@@ -5,10 +5,7 @@ A simple generalised Image Classification Pipeline capable of training, testing,
 > **It is currently possible to:**
 >
 > - Test pre-saved models on a CPU, training using large image datasets on CPU may result in extremely long compute times
->
 > - Train and test models on a CUDA GPU
->    
->
 
 ![cat image test](assets/cat-test.png)
 
@@ -34,8 +31,8 @@ source ./venv/bin/activate  #Linux/MacOS
 While the virtual environment is active, run one of the following commands.
 
 ```bash
-pip install -r requirements.txt     #CPU install
-pip install -r requirements-gpu.txt #GPU install
+pip install -r requirements.txt     #CPU install - required for testing models
+pip install -r requirements-gpu.txt #GPU install - required for testing and training
 ```
 
 Even though the required GPU builds are completely CPU compatible for testing, much more storage is required for GPU backends that will not be utilised.
